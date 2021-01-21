@@ -1,0 +1,48 @@
+name: Tagged Release Asset Download
+description: Downloads an asset from a Github Release with support for tag prefixes
+
+inputs:
+  repo:
+    description: the 'owner/repo' of the repository to download from
+    required: false
+    default: ""
+  version:
+    description: the version of the release to download from (defaults to latest)
+    required: false
+    default: latest
+  prefix:
+    description: the tag prefix to use, useful in monorepos with path prefix for tags (defaults to v)
+    required: false
+    default: v
+  file:
+    description: the name of the file in the release to download
+    required: true
+  out:
+    description: the directory where the file will be stored on local disk
+    required: false
+    default: "/tmp/"
+  token:
+    description: an optional Access Token to access repository
+    required: false
+    default: ""
+
+runs:
+  using: docker
+  image: Dockerfile
+  args:
+    - ${{ inputs.repo }}
+    - ${{ inputs.version }}
+    - ${{ inputs.prefix }}
+    - ${{ inputs.file }}
+    - ${{ inputs.out }}
+    - ${{ inputs.token }}
+
+outputs:
+  out:
+    description: The location on local disk where the file was stored
+  version:
+    description: The version of the release or tag
+
+branding:
+  icon: download-cloud
+  color: purple
