@@ -9,11 +9,11 @@ fi
 # Resolve the repo owner/name path
 REPO=
 if [[ -z "${INPUT_REPO}" ]]; then
-  if [[ -z "${GITHUB_REPOSITORY}" ]]; then
-    echo "Missing GITHUB_REPOSITORY env variable, should be provided by GitHub"
+  if [[ -z "${GITHUB_REPOSITORY}" && -z "${GITHUB_REPOSITORY_OWNER}" ]]; then
+    echo "Missing repository location, either GitHub should provide it or the 'repo' Input"
     exit 2
   fi
-  REPO="${GITHUB_REPOSITORY}"
+  REPO="${GITHUB_REPOSITORY_OWNER}/${GITHUB_REPOSITORY}"
 else
   REPO="${INPUT_REPO}"
 fi
