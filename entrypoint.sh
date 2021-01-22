@@ -8,6 +8,14 @@ function errecho() {
     >&2 echo -e "\033[0;31mERR: ${*}\033[0m"
 }
 
+function hintecho() {
+    >&2 echo -e "\033[0;33mHINT: ${*}\033[0m"
+}
+
+function infoecho() {
+    >&2 echo -e "\033[0;34mINFO: ${*}\033[0m"
+}
+
 #
 # Declare Error Codes
 #
@@ -84,7 +92,9 @@ RELEASES=$(curl -s "${API_URL}/releases")
 if [[ "$(echo "${RELEASES}" | jq -r "if type == \"object\" then .message else empty end")" == "Not Found" ]]; then
   errecho "no repository found using the location '${REPO}'"
   if [[ -z "${TOKEN}" ]]; then
-    errecho "no token was provided, this could be the reason for not finding the repository"
+    hintecho "no token was provided, this could be the reason for not finding the repository"
+  else
+    hintecho "GitHub will return 404 Not Found when the provided token has no access to the repository"
   fi
   exit "${ERR_MISS_REPO}"
 fi
@@ -157,6 +167,10 @@ chmod "${MODE}" "${OUT}"
 #
 # Declare the Workflow Outputs
 #
+
+infoecho "Successfully wrote file to ${OUT}."
+infoecho "out=${OUT}"
+infoecho "version=${TAG_VERSION}"
 
 echo "##[set-output name=out;]${OUT}"
 echo "##[set-output name=version;]${TAG_VERSION}"
