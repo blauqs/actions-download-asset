@@ -56,8 +56,13 @@ if [[ -z "${TOKEN}" ]]; then
 fi
 
 # Optional out directory
-OUT_DIR="${INPUT_OUT:-/tmp}"
-OUT_DIR="$(echo "${OUT_DIR}" | sed -E 's/\/+$//')"
+OUT="${INPUT_OUT}"
+if [[ -d "${OUT}" ]]; then
+  OUT="${OUT}/${INPUT_FILE}"
+elif [[ -z "${OUT}" ]]; then
+  OUT="/tmp/${INPUT_FILE}"
+fi
+OUT="$(echo "${OUT}" | sed -E 's|/+|/|')"
 
 #
 # Call the GitHub API and Parse Responses
@@ -72,6 +77,9 @@ RELEASES=$(curl -s "${API_URL}/releases")
 # Ensure we found a valid repo
 if [[ "$(echo "${RELEASES}" | jq -r "if type == \"object\" then .message else empty end")" == "Not Found" ]]; then
   errecho "no repository found using the location '${REPO}'"
+  if [[ -z "${TOKEN}" ]]; then
+    errecho "no token was provided, this could be the reason for not finding the repository"
+  fi
   exit "${ERR_MISS_REPO}"
 fi
 
@@ -134,12 +142,12 @@ curl \
   -J \
   -L \
   -H "Accept: application/octet-stream" \
-  -o "${OUT_DIR}/${INPUT_FILE}" \
+  -o "${OUT}" \
   "${API_URL}/releases/assets/${ASSET_ID}"
 
 #
 # Declare the Workflow Outputs
 #
 
-echo "##[set-output name=out;]${OUT_DIR}/${INPUT_FILE}"
+echo "##[set-output name=out;]${OUT}"
 echo "##[set-output name=version;]${TAG_VERSION}"
