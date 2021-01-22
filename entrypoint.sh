@@ -77,13 +77,19 @@ elif [[ -z "${OUT}" ]]; then
 elif ! [[ "${OUT}" =~ ^/ ]]; then
   OUT="/github/workspace/${OUT}"
 fi
+
+# Remove duplicate separators from OUT
 OUT="$(echo "${OUT}" | sed -E 's|/+|/|')"
-for VOL in "${GH_VOLUMES[@]}"; do
-  FOUND=0; if [[ "${OUT}" =~ ^${VOL} ]]; then FOUND=$((FOUND+1)); break; fi
-  if [[ ${FOUND} -eq 0 ]]; then
-    warnecho "you're writing the file to an inaccessible directory, only these directories are mounted by GitHub: ${GH_VOLUMES[*]}"
-  fi
-done
+
+# Check to see if OUT is outside of the GitHub volumes, then warn user
+OUT_FOUND_IN_VOL=0
+for VOL in "${GH_VOLUMES[@]}"; do if [[ "${OUT}" =~ ^${VOL} ]]; then OUT_FOUND_IN_VOL=$((OUT_FOUND_IN_VOL+1)); break; fi; done
+if [[ ${OUT_FOUND_IN_VOL} -eq 0 ]]; then
+  warnecho "you're writing the file to an inaccessible directory, only these directories are mounted by GitHub: ${GH_VOLUMES[*]}"
+fi
+
+# Lastly, create the directories needed to write the file
+mkdir -p "$(dirname "${OUT}")"
 
 # Optional file mode
 MODE="${INPUT_MODE}"
