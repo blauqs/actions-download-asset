@@ -24,6 +24,10 @@ The tag prefix to use, useful in monorepos with path prefix for tags (defaults t
 
 The directory where the file will be stored on local disk (defaults to `/tmp/`)
 
+### `mode`
+
+The mode of the file after downloading it from the release (defaults to `644`)
+
 ### `token`
 An optional Access Token to access repository. You need to either specify this or use the ``secrets.GITHUB_TOKEN`` environment variable. Note that if you are working with a private repository, you cannot use the default ``secrets.GITHUB_TOKEN`` - you have to set up a [personal access token with at least the scope org:hook](https://github.com/dsaltares/fetch-gh-release-asset/issues/10#issuecomment-668665447).
 
@@ -31,11 +35,11 @@ An optional Access Token to access repository. You need to either specify this o
 
 ### `out`
 
-The location on local disk where the file was stored
+The location on local disk where the file was stored (i.e. `/tmp/foo-file.txt`)
 
 ### `version`
 
-The version of the release or tag
+The version of the release or tag (i.e. `1.0.1` *without prefix*)
 
 ## Usage Example
 

@@ -49,12 +49,6 @@ if [[ -z "${PREFIX}" ]]; then
   VER="v"
 fi
 
-# Optional access token for private repositories
-TOKEN="${INPUT_TOKEN}"
-if [[ -z "${TOKEN}" ]]; then
-  TOKEN="${GITHUB_TOKEN}"
-fi
-
 # Optional out directory
 OUT="${INPUT_OUT}"
 if [[ -d "${OUT}" ]]; then
@@ -63,6 +57,18 @@ elif [[ -z "${OUT}" ]]; then
   OUT="/tmp/${INPUT_FILE}"
 fi
 OUT="$(echo "${OUT}" | sed -E 's|/+|/|')"
+
+# Optional file mode
+MODE="${INPUT_MODE}"
+if [[ -z "${MODE}" ]]; then
+  MODE="644"
+fi
+
+# Optional access token for private repositories
+TOKEN="${INPUT_TOKEN}"
+if [[ -z "${TOKEN}" ]]; then
+  TOKEN="${GITHUB_TOKEN}"
+fi
 
 #
 # Call the GitHub API and Parse Responses
@@ -144,6 +150,9 @@ curl \
   -H "Accept: application/octet-stream" \
   -o "${OUT}" \
   "${API_URL}/releases/assets/${ASSET_ID}"
+
+# Apply the file mode
+chmod "${MODE}" "${OUT}"
 
 #
 # Declare the Workflow Outputs
