@@ -22,7 +22,7 @@ The tag prefix to use, useful in monorepos with path prefix for tags (defaults t
 
 ### `out`
 
-The directory where the file will be stored on local disk (defaults to `/tmp/`)
+The directory where the file will be stored on local disk (defaults to `/github/workspace/`)
 
 ### `mode`
 

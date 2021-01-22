@@ -8,8 +8,12 @@ function errecho() {
     >&2 echo -e "\033[0;31mERR: ${*}\033[0m"
 }
 
+function warnecho() {
+    >&2 echo -e "\033[0;33mWARNING: ${*}\033[0m"
+}
+
 function hintecho() {
-    >&2 echo -e "\033[0;33mHINT: ${*}\033[0m"
+    >&2 echo -e "\033[1;33mHINT: ${*}\033[0m"
 }
 
 function infoecho() {
@@ -17,13 +21,20 @@ function infoecho() {
 }
 
 #
-# Declare Error Codes
+# Declare Constants
 #
 
 readonly ERR_GEN=1
 readonly ERR_MISS_REPO=2
 readonly ERR_NO_RELEASES=3
 readonly ERR_NO_ASSET=4
+
+readonly GH_VOLUMES=(
+  "/github/home"
+  "/github/workflow"
+  "/github/workspace"
+  "/github/file_commands"
+)
 
 #
 # Parse Action Inputs
@@ -62,9 +73,17 @@ OUT="${INPUT_OUT}"
 if [[ -d "${OUT}" ]]; then
   OUT="${OUT}/${INPUT_FILE}"
 elif [[ -z "${OUT}" ]]; then
-  OUT="/tmp/${INPUT_FILE}"
+  OUT="/github/workspace/${INPUT_FILE}"
+elif ! [[ "${OUT}" =~ ^/ ]]; then
+  OUT="/github/workspace/${OUT}"
 fi
 OUT="$(echo "${OUT}" | sed -E 's|/+|/|')"
+for VOL in "${GH_VOLUMES[@]}"; do
+  FOUND=0; if [[ "${OUT}" =~ ^${VOL} ]]; then FOUND=$((FOUND+1)); break; fi
+  if [[ ${FOUND} -eq 0 ]]; then
+    warnecho "you're writing the file to an inaccessible directory, only these directories are mounted by GitHub: ${GH_VOLUMES[*]}"
+  fi
+done
 
 # Optional file mode
 MODE="${INPUT_MODE}"
