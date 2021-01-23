@@ -2,6 +2,8 @@
 
 This action downloads an asset from a Github release. Supports private repositories as well as monorepos with path prefixes to their tags, i.e. `lib/log/v` will only match releases with that prefix.
 
+Created by the [official GitHub template](https://github.com/actions/typescript-action).
+
 ## Inputs
 
 ### `repo`
