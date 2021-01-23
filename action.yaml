@@ -1,6 +1,14 @@
 name: Tagged Release Asset Download
 description: Downloads an asset from a Github Release with support for tag prefixes
 
+branding:
+  icon: download-cloud
+  color: purple
+
+runs:
+  using: 'node12'
+  main: 'dist/main.js'
+
 inputs:
   repo:
     description: the 'owner/repo' of the repository to download from
@@ -30,24 +38,8 @@ inputs:
     required: false
     default: ""
 
-runs:
-  using: docker
-  image: Dockerfile
-  args:
-    - ${{ inputs.repo }}
-    - ${{ inputs.version }}
-    - ${{ inputs.prefix }}
-    - ${{ inputs.file }}
-    - ${{ inputs.out }}
-    - ${{ inputs.mode }}
-    - ${{ inputs.token }}
-
 outputs:
   out:
     description: The location on local disk where the file was stored
   version:
     description: The version of the release or tag
-
-branding:
-  icon: download-cloud
-  color: purple

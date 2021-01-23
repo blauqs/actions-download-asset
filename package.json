@@ -1,0 +1,35 @@
+{
+  "version": "1.1.0",
+  "name": "@blauqs/actions-download-asset",
+  "description": "This action downloads an asset from a Github release. Supports private repositories as well as monorepos with path prefixes to their tags, i.e. lib/log/v will only match releases with that prefix.",
+  "author": "Blauqs, Inc.",
+  "license": "ISC",
+  "homepage": "https://github.com/blauqs/actions-download-asset#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blauqs/actions-download-asset.git"
+  },
+  "bugs": {
+    "url": "https://github.com/blauqs/actions-download-asset/issues"
+  },
+  "keywords": [
+    "github",
+    "actions",
+    "asset",
+    "download",
+    "tag",
+    "prefix",
+    "monorepo"
+  ],
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0"
+  },
+  "devDependencies": {
+    "@octokit/openapi-types": "^3.2.0"
+  }
+}
