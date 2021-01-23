@@ -45,8 +45,9 @@ import {get} from 'https'
 
     // Resolve the out path
     let out = core.getInput('out')
-    if (out && statSync(out).isDirectory()) out = join(out, file)
     if (out && !isAbsolute(out)) out = join(workspace, out)
+    if (out && existsSync(out) && statSync(out).isDirectory())
+      out = join(out, file)
     if (!out || !out.length) out = join(workspace, file)
     out = resolve(out)
 

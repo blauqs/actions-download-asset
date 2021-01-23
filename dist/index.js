@@ -68,10 +68,10 @@ const https_1 = __nccwpck_require__(211);
         }
         // Resolve the out path
         let out = core.getInput('out');
-        if (out && fs_1.statSync(out).isDirectory())
-            out = path_1.join(out, file);
         if (out && !path_1.isAbsolute(out))
             out = path_1.join(workspace, out);
+        if (out && fs_1.existsSync(out) && fs_1.statSync(out).isDirectory())
+            out = path_1.join(out, file);
         if (!out || !out.length)
             out = path_1.join(workspace, file);
         out = path_1.resolve(out);
