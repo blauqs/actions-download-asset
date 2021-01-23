@@ -49,7 +49,6 @@ import {get} from 'https'
     if (out && existsSync(out) && statSync(out).isDirectory())
       out = join(out, file)
     if (!out || !out.length) out = join(workspace, file)
-    out = resolve(out)
 
     // Check to see if out path is in the GitHub Volumes, otherwise warn the user
     let outFound = 0
