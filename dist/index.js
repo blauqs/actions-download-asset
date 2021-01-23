@@ -68,7 +68,7 @@ const https_1 = __nccwpck_require__(211);
         if (!out || !out.length)
             out = path_1.join(workspace, file);
         // Ensure we create the directory where the file will be saved
-        fs_1.mkdirSync(path_1.dirname(out), { recursive: true });
+        fs_1.mkdirSync(path_1.dirname(out), { recursive: true, mode: 0o755 });
         // Get an instance of GitHub Octokit
         const octokit = github.getOctokit(token || '');
         // Get repository releases
@@ -132,7 +132,7 @@ const https_1 = __nccwpck_require__(211);
             if (fs_1.existsSync(out))
                 fs_1.unlinkSync(out);
             // Write the file to the out path
-            res.pipe(fs_1.createWriteStream(out, { mode: parseInt(mode) }));
+            res.pipe(fs_1.createWriteStream(out, { mode: parseInt(mode, 8) }));
             // Declare Action Outputs
             core.setOutput('out', out);
             core.setOutput('version', matchedVersion);
