@@ -43,7 +43,7 @@ import {get} from 'https'
     if (!out || !out.length) out = join(workspace, file)
 
     // Ensure we create the directory where the file will be saved
-    mkdirSync(dirname(out), {recursive: true})
+    mkdirSync(dirname(out), {recursive: true, mode: 0o755})
 
     // Get an instance of GitHub Octokit
     const octokit = github.getOctokit(token || '')
@@ -126,7 +126,7 @@ import {get} from 'https'
         if (existsSync(out)) unlinkSync(out)
 
         // Write the file to the out path
-        res.pipe(createWriteStream(out, {mode: parseInt(mode)}))
+        res.pipe(createWriteStream(out, {mode: parseInt(mode, 8)}))
 
         // Declare Action Outputs
         core.setOutput('out', out)
