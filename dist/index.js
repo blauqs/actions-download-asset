@@ -147,6 +147,8 @@ const fs_1 = __nccwpck_require__(5747);
             // Declare Action Outputs
             core.setOutput('out', out);
             core.setOutput('version', matchedVersion);
+            // Debug info
+            core.info(`downloaded ${file}@v${matchedVersion} from ${repo} to ${out}`);
             // Exit successfully
             process.exit(0);
         });

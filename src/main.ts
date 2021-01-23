@@ -141,6 +141,9 @@ import {
       core.setOutput('out', out)
       core.setOutput('version', matchedVersion)
 
+      // Debug info
+      core.info(`downloaded ${file}@v${matchedVersion} from ${repo} to ${out}`)
+
       // Exit successfully
       process.exit(0)
     })
