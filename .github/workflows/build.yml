@@ -1,7 +1,8 @@
 name: Compile TypeScript
 
 on:
-  push: 'master'
+  push:
+    - 'master'
 
 jobs:
   tsc:
