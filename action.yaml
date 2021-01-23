@@ -28,7 +28,7 @@ inputs:
   out:
     description: the directory where the file will be stored on local disk
     required: false
-    default: "/github/workspace/"
+    default: ""
   mode:
     description: the mode of the file after downloading it from the release
     required: false

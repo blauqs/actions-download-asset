@@ -43,15 +43,8 @@ const fs_1 = __nccwpck_require__(747);
 const https_1 = __nccwpck_require__(211);
 (() => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Define GitHub env constants
-        const ghVolumes = [
-            '/github/home',
-            '/github/workflow',
-            '/github/workspace',
-            '/github/file_commands'
-        ];
         // Define the Action Inputs
-        const workspace = '/github/workspace';
+        const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
         const file = core.getInput('file', { required: true });
         const repo = core.getInput('repo') || process.env.GITHUB_REPOSITORY;
         const version = core.getInput('version') || 'latest';
@@ -74,19 +67,6 @@ const https_1 = __nccwpck_require__(211);
             out = path_1.join(out, file);
         if (!out || !out.length)
             out = path_1.join(workspace, file);
-        out = path_1.resolve(out);
-        // Check to see if out path is in the GitHub Volumes, otherwise warn the user
-        let outFound = 0;
-        for (const vol of ghVolumes) {
-            if (out.startsWith(vol)) {
-                outFound++;
-                break;
-            }
-        }
-        if (!outFound) {
-            core.warning(`you're writing the file to an inaccessible directory...`);
-            core.warning(`only these directories are mounted by GitHub: [${ghVolumes.join(', ')}]`);
-        }
         // Ensure we create the directory where the file will be saved
         fs_1.mkdirSync(path_1.dirname(out), { recursive: true });
         // Get an instance of GitHub Octokit

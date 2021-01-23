@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import {components} from '@octokit/openapi-types'
-import {join, isAbsolute, resolve, dirname} from 'path'
+import {join, isAbsolute, dirname} from 'path'
 import {
   statSync,
   existsSync,
@@ -12,16 +12,8 @@ import {
 import {get} from 'https'
 ;(async () => {
   try {
-    // Define GitHub env constants
-    const ghVolumes = [
-      '/github/home',
-      '/github/workflow',
-      '/github/workspace',
-      '/github/file_commands'
-    ]
-
     // Define the Action Inputs
-    const workspace = '/github/workspace'
+    const workspace = process.env.GITHUB_WORKSPACE || process.cwd()
     const file = core.getInput('file', {required: true})
     const repo = core.getInput('repo') || process.env.GITHUB_REPOSITORY
     const version = core.getInput('version') || 'latest'
@@ -49,23 +41,6 @@ import {get} from 'https'
     if (out && existsSync(out) && statSync(out).isDirectory())
       out = join(out, file)
     if (!out || !out.length) out = join(workspace, file)
-
-    // Check to see if out path is in the GitHub Volumes, otherwise warn the user
-    let outFound = 0
-    for (const vol of ghVolumes) {
-      if (out.startsWith(vol)) {
-        outFound++
-        break
-      }
-    }
-    if (!outFound) {
-      core.warning(`you're writing the file to an inaccessible directory...`)
-      core.warning(
-        `only these directories are mounted by GitHub: [${ghVolumes.join(
-          ', '
-        )}]`
-      )
-    }
 
     // Ensure we create the directory where the file will be saved
     mkdirSync(dirname(out), {recursive: true})

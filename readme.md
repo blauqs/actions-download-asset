@@ -24,7 +24,7 @@ The tag prefix to use, useful in monorepos with path prefix for tags (defaults t
 
 ### `out`
 
-The directory where the file will be stored on local disk (defaults to `/github/workspace/`)
+The directory where the file will be stored on local disk (defaults to `${GITHUB_WORKSPACE}` or CWD)
 
 ### `mode`
 
