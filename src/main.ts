@@ -2,10 +2,15 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import {components} from '@octokit/openapi-types'
 import {join, isAbsolute, resolve, dirname} from 'path'
-import {statSync, mkdirSync, createWriteStream} from 'fs'
-import * as stream from 'stream'
+import {
+  statSync,
+  existsSync,
+  mkdirSync,
+  unlinkSync,
+  createWriteStream
+} from 'fs'
+import {get} from 'https'
 ;(async () => {
-  let token: string | undefined
   try {
     // Define GitHub env constants
     const ghVolumes = [
@@ -23,20 +28,26 @@ import * as stream from 'stream'
     const prefix = core.getInput('prefix') || 'v'
     const mode = core.getInput('mode') || '644'
 
-    // Set the GitHub Access Token...
-    token = core.getInput('token') || process.env.GITHUB_TOKEN
+    // Set the GitHub Access Token... and make sure we were provided one
+    const token = core.getInput('token') || process.env.GITHUB_TOKEN
+    if (!token || !token.length) {
+      throw new Error(
+        `missing auth token, either use the 'token' input or the GITHUB_TOKEN env var`
+      )
+    }
 
     // Verify that we got the repo information from somewhere
     if (!repo || !repo.length) {
       throw new Error(
-        `missing repository location, either GitHub should provide it or the 'repo' input`
+        `missing repository location, either use the 'repo' input or the GITHUB_REPOSITORY env var`
       )
     }
 
     // Resolve the out path
-    let out = core.getInput('out') || join(workspace, file)
-    if (!isAbsolute(out)) out = join(workspace, out)
-    if (statSync(out).isDirectory()) out = join(out, file)
+    let out = core.getInput('out')
+    if (out && statSync(out).isDirectory()) out = join(out, file)
+    if (out && !isAbsolute(out)) out = join(workspace, out)
+    if (!out || !out.length) out = join(workspace, file)
     out = resolve(out)
 
     // Check to see if out path is in the GitHub Volumes, otherwise warn the user
@@ -63,7 +74,10 @@ import * as stream from 'stream'
     const octokit = github.getOctokit(token || '')
 
     // Get repository releases
-    const releases = await octokit.repos.listReleases()
+    const releases = await octokit.repos.listReleases({
+      repo: repo.split('/', 2)[1],
+      owner: repo.split('/', 2)[0]
+    })
 
     // Check if repo has any releases
     if (!releases.data.length) {
@@ -124,41 +138,51 @@ import * as stream from 'stream'
     const matchedVersion = matchedRelease.tag_name.replace(prefix, '')
 
     // Download the release asset and set file mode
-    const res = await octokit.repos.getReleaseAsset({
-      repo: repo.split('/', 2)[1],
-      owner: repo.split('/', 2)[0],
-      asset_id: matchedAsset.id,
-      headers: {
-        Accept: 'application/octet-stream',
-        Authorization: `token ${token}`
+    get(
+      matchedAsset.browser_download_url,
+      {
+        headers: {
+          Accept: 'application/octet-stream',
+          Authorization: `token ${token}`
+        }
+      },
+      res => {
+        // If the file already exists, delete it first
+        if (existsSync(out)) unlinkSync(out)
+
+        // Write the file to the out path
+        res.pipe(createWriteStream(out, {mode: parseInt(mode)}))
+
+        // Declare Action Outputs
+        core.setOutput('out', out)
+        core.setOutput('version', matchedVersion)
+
+        process.exit(0)
       }
-    })
-
-    ;((res.data as unknown) as stream).pipe(
-      createWriteStream(out, {mode: parseInt(mode)})
     )
-
-    // Display confirmation
-    core.info(`Successfully wrote file to ${out}.`)
-    core.info(`out=${out}`)
-    core.info(`version=${matchedVersion}`)
-
-    // Declare Action Outputs
-    core.setOutput('out', out)
-    core.setOutput('version', matchedVersion)
-
-    process.exit(0)
   } catch (error) {
-    if (!token || !token.length) {
+    // Display helpful hints if we get back a 401
+    if (error.hasOwnProperty('status') && error.status === 401) {
       core.warning(
-        'no token was provided, this could be the reason for not finding the repository'
-      )
-    } else {
-      core.warning(
-        'by the way, GitHub will return 404 Not Found when the provided token has no access to the repository'
+        'looks like the provided token has no access to the repository'
       )
     }
-    core.setFailed(`${error}`)
+
+    // Display helpful hints if we get back a 404, otherwise just display the error
+    if (error.hasOwnProperty('status') && error.status === 404) {
+      if (error.request.url.includes('assets')) {
+        core.setFailed(
+          `could not find the asset, check the spelling of the file name or the access of the auth token`
+        )
+      } else {
+        core.setFailed(
+          `could not find the repository, check the spelling of the repo or the access of the auth token`
+        )
+      }
+    } else {
+      core.setFailed(`${error}`)
+    }
+
     process.exit(1)
   }
 })()

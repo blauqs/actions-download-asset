@@ -40,8 +40,8 @@ const core = __importStar(__nccwpck_require__(186));
 const github = __importStar(__nccwpck_require__(438));
 const path_1 = __nccwpck_require__(622);
 const fs_1 = __nccwpck_require__(747);
+const https_1 = __nccwpck_require__(211);
 (() => __awaiter(void 0, void 0, void 0, function* () {
-    let token;
     try {
         // Define GitHub env constants
         const ghVolumes = [
@@ -57,18 +57,23 @@ const fs_1 = __nccwpck_require__(747);
         const version = core.getInput('version') || 'latest';
         const prefix = core.getInput('prefix') || 'v';
         const mode = core.getInput('mode') || '644';
-        // Set the GitHub Access Token...
-        token = core.getInput('token') || process.env.GITHUB_TOKEN;
+        // Set the GitHub Access Token... and make sure we were provided one
+        const token = core.getInput('token') || process.env.GITHUB_TOKEN;
+        if (!token || !token.length) {
+            throw new Error(`missing auth token, either use the 'token' input or the GITHUB_TOKEN env var`);
+        }
         // Verify that we got the repo information from somewhere
         if (!repo || !repo.length) {
-            throw new Error(`missing repository location, either GitHub should provide it or the 'repo' input`);
+            throw new Error(`missing repository location, either use the 'repo' input or the GITHUB_REPOSITORY env var`);
         }
         // Resolve the out path
-        let out = core.getInput('out') || path_1.join(workspace, file);
-        if (!path_1.isAbsolute(out))
-            out = path_1.join(workspace, out);
-        if (fs_1.statSync(out).isDirectory())
+        let out = core.getInput('out');
+        if (out && fs_1.statSync(out).isDirectory())
             out = path_1.join(out, file);
+        if (out && !path_1.isAbsolute(out))
+            out = path_1.join(workspace, out);
+        if (!out || !out.length)
+            out = path_1.join(workspace, file);
         out = path_1.resolve(out);
         // Check to see if out path is in the GitHub Volumes, otherwise warn the user
         let outFound = 0;
@@ -87,7 +92,10 @@ const fs_1 = __nccwpck_require__(747);
         // Get an instance of GitHub Octokit
         const octokit = github.getOctokit(token || '');
         // Get repository releases
-        const releases = yield octokit.repos.listReleases();
+        const releases = yield octokit.repos.listReleases({
+            repo: repo.split('/', 2)[1],
+            owner: repo.split('/', 2)[0]
+        });
         // Check if repo has any releases
         if (!releases.data.length) {
             throw new Error(`no releases created in repo '${repo}'`);
@@ -134,33 +142,40 @@ const fs_1 = __nccwpck_require__(747);
         // Define the matched version (in care 'latest' was used)
         const matchedVersion = matchedRelease.tag_name.replace(prefix, '');
         // Download the release asset and set file mode
-        const res = yield octokit.repos.getReleaseAsset({
-            repo: repo.split('/', 2)[1],
-            owner: repo.split('/', 2)[0],
-            asset_id: matchedAsset.id,
+        https_1.get(matchedAsset.browser_download_url, {
             headers: {
                 Accept: 'application/octet-stream',
                 Authorization: `token ${token}`
             }
+        }, res => {
+            // If the file already exists, delete it first
+            if (fs_1.existsSync(out))
+                fs_1.unlinkSync(out);
+            // Write the file to the out path
+            res.pipe(fs_1.createWriteStream(out, { mode: parseInt(mode) }));
+            // Declare Action Outputs
+            core.setOutput('out', out);
+            core.setOutput('version', matchedVersion);
+            process.exit(0);
         });
-        res.data.pipe(fs_1.createWriteStream(out, { mode: parseInt(mode) }));
-        // Display confirmation
-        core.info(`Successfully wrote file to ${out}.`);
-        core.info(`out=${out}`);
-        core.info(`version=${matchedVersion}`);
-        // Declare Action Outputs
-        core.setOutput('out', out);
-        core.setOutput('version', matchedVersion);
-        process.exit(0);
     }
     catch (error) {
-        if (!token || !token.length) {
-            core.warning('no token was provided, this could be the reason for not finding the repository');
+        // Display helpful hints if we get back a 401
+        if (error.hasOwnProperty('status') && error.status === 401) {
+            core.warning('looks like the provided token has no access to the repository');
+        }
+        // Display helpful hints if we get back a 404, otherwise just display the error
+        if (error.hasOwnProperty('status') && error.status === 404) {
+            if (error.request.url.includes('assets')) {
+                core.setFailed(`could not find the asset, check the spelling of the file name or the access of the auth token`);
+            }
+            else {
+                core.setFailed(`could not find the repository, check the spelling of the repo or the access of the auth token`);
+            }
         }
         else {
-            core.warning('by the way, GitHub will return 404 Not Found when the provided token has no access to the repository');
+            core.setFailed(`${error}`);
         }
-        core.setFailed(`${error}`);
         process.exit(1);
     }
 }))();
