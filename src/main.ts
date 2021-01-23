@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
+import axios from 'axios'
 import {components} from '@octokit/openapi-types'
 import {join, isAbsolute, dirname} from 'path'
 import {
@@ -9,7 +10,6 @@ import {
   unlinkSync,
   createWriteStream
 } from 'fs'
-import {get} from 'https'
 ;(async () => {
   try {
     // Define the Action Inputs
@@ -69,6 +69,11 @@ import {get} from 'https'
       return false
     })
 
+    // Order the releases by date
+    matchedReleases.sort(
+      (r1, r2) => Date.parse(r1.created_at) - Date.parse(r2.created_at)
+    )
+
     // Ensure we found at least one release
     if (!matchedReleases.length) {
       if (version === 'latest') {
@@ -113,28 +118,37 @@ import {get} from 'https'
     const matchedVersion = matchedRelease.tag_name.replace(prefix, '')
 
     // Download the release asset and set file mode
-    get(
-      matchedAsset.browser_download_url,
-      {
-        headers: {
-          Accept: 'application/octet-stream',
-          Authorization: `token ${token}`
-        }
+    const res = await axios({
+      method: 'get',
+      url: matchedAsset.url,
+      headers: {
+        Accept: 'application/octet-stream',
+        Authorization: `token ${token}`
       },
-      res => {
-        // If the file already exists, delete it first
-        if (existsSync(out)) unlinkSync(out)
+      responseType: 'stream'
+    })
 
-        // Write the file to the out path
-        res.pipe(createWriteStream(out, {mode: parseInt(mode, 8)}))
+    // If the file already exists, delete it first
+    if (existsSync(out)) unlinkSync(out)
 
-        // Declare Action Outputs
-        core.setOutput('out', out)
-        core.setOutput('version', matchedVersion)
+    // Write the file to the out path
+    const writer = createWriteStream(out, {mode: parseInt(mode, 8)})
+    res.data.pipe(writer)
 
-        process.exit(0)
-      }
-    )
+    // Wait for writer to close or error
+    writer.on('close', () => {
+      // Declare Action Outputs
+      core.setOutput('out', out)
+      core.setOutput('version', matchedVersion)
+
+      // Exit successfully
+      process.exit(0)
+    })
+
+    // Throw error if writer failed
+    writer.on('error', err => {
+      throw new Error(`${err}`)
+    })
   } catch (error) {
     // Display helpful hints if we get back a 401
     if (error.hasOwnProperty('status') && error.status === 401) {
