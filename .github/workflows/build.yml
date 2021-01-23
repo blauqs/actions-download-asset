@@ -2,7 +2,9 @@ name: Compile TypeScript
 
 on:
   push:
-    - 'master'
+    tags:
+    branches:
+      - 'master'
 
 jobs:
   tsc:
