@@ -37,6 +37,10 @@ inputs:
     description: an optional Access Token to access repository
     required: false
     default: ""
+  unpack:
+    description: unpack the asset if it's of type .tar.gz, .tgz or .zip
+    required: false
+    default: "false"
 
 outputs:
   out:

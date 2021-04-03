@@ -1,8 +1,9 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import axios from 'axios'
+import decompress from 'decompress'
 import {components} from '@octokit/openapi-types'
-import {join, isAbsolute, dirname} from 'path'
+import {join, isAbsolute, dirname, extname} from 'path'
 import {
   statSync,
   existsSync,
@@ -19,6 +20,8 @@ import {
     const version = core.getInput('version') || 'latest'
     const prefix = core.getInput('prefix') || 'v'
     const mode = core.getInput('mode') || '644'
+    const unpack =
+      `${Boolean(core.getInput('unpack') || false)}`.toLowerCase() === 'true'
 
     // Set the GitHub Access Token... and make sure we were provided one
     const token = core.getInput('token') || process.env.GITHUB_TOKEN
@@ -144,8 +147,30 @@ import {
       // Debug info
       core.info(`downloaded ${file}@v${matchedVersion} from ${repo} to ${out}`)
 
-      // Exit successfully
-      process.exit(0)
+      // Unpack archive if requested
+      if (
+        unpack &&
+        ['.zip', '.tgz', '.tbz', '.gz', '.bz'].includes(extname(out))
+      ) {
+        // eslint-disable-next-line github/no-then
+        decompress(out, dirname(out)).then(
+          () => {
+            // Debug info
+            core.info(
+              `unpacked ${file}@v${matchedVersion} into ${dirname(out)}`
+            )
+
+            // Exit successfully
+            process.exit(0)
+          },
+          err => {
+            throw new Error(`${err}`)
+          }
+        )
+      } else {
+        // Exit successfully
+        process.exit(0)
+      }
     })
 
     // Throw error if writer failed

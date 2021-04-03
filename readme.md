@@ -33,6 +33,10 @@ The mode of the file after downloading it from the release (defaults to `644`)
 ### `token`
 An optional Access Token to access repository. You need to either specify this or use the ``secrets.GITHUB_TOKEN`` environment variable. Note that if you are working with a private repository, you cannot use the default ``secrets.GITHUB_TOKEN`` - you have to set up a [personal access token with at least the scope org:hook](https://github.com/dsaltares/fetch-gh-release-asset/issues/10#issuecomment-668665447).
 
+### `unpack`
+
+Unpack the asset if it's of type .tar.gz, .tgz or .zip (defaults to `false`)
+
 ## Outputs
 
 ### `out`
