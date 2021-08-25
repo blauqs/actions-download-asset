@@ -8,7 +8,7 @@ Created by the [official GitHub template](https://github.com/actions/typescript-
 
 ### `repo`
 
-The 'owner/repo' of the repository to download from, i.e. `blauqs/test`
+The 'owner/repo' of the repository to download from, i.e. `soukvm/test`
 
 ### `version`
 
@@ -50,10 +50,10 @@ The version of the release or tag (i.e. `1.0.1` *without prefix*)
 ## Usage Example
 
 ```yaml
-uses: blauqs/action-download-asset@master
+uses: soukvm/action-download-asset@master
 id: download
 with:
-  repo: blauqs/test
+  repo: soukvm/test
   version: latest
   file: some-foo-file.zip
   out: /usr/local/src/
