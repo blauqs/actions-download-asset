@@ -54,10 +54,10 @@ The URL of the downloaded asset
 ## Usage Example
 
 ```yaml
-uses: soukvm/action-download-asset@master
+uses: blauqs/action-download-asset@master
 id: download
 with:
-  repo: soukvm/test
+  repo: blauqs/test
   version: latest
   file: some-foo-file.zip
   out: /usr/local/src/
