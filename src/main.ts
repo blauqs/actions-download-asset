@@ -18,7 +18,7 @@ import {
     const file = core.getInput('file', {required: true})
     const repo = core.getInput('repo') || process.env.GITHUB_REPOSITORY
     const version = core.getInput('version') || 'latest'
-    const prefix = core.getInput('prefix') || 'v'
+    const prefix = core.getInput('prefix')
     const mode = core.getInput('mode') || '644'
     const unpack =
       `${Boolean(core.getInput('unpack') || false)}`.toLowerCase() === 'true'

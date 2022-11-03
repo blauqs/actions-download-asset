@@ -51,7 +51,7 @@ const fs_1 = __nccwpck_require__(5747);
         const file = core.getInput('file', { required: true });
         const repo = core.getInput('repo') || process.env.GITHUB_REPOSITORY;
         const version = core.getInput('version') || 'latest';
-        const prefix = core.getInput('prefix') || 'v';
+        const prefix = core.getInput('prefix');
         const mode = core.getInput('mode') || '644';
         // Set the GitHub Access Token... and make sure we were provided one
         const token = core.getInput('token') || process.env.GITHUB_TOKEN;
