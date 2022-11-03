@@ -89,13 +89,21 @@ import {
         )
       }
     }
-
+    
+    // Construct regex
+    let re;
+    if (file[0] == '/' && file[file.length - 1] == '/') {
+      re = new RegExp(file.substr(1, file.length - 2));
+    } else {
+      re = new RegExp('^' + file + '$');
+    }
+    
     // Filter the assets by file name
     let matchedRelease: components['schemas']['release'] | undefined
     let matchedAsset: components['schemas']['release-asset'] | undefined
     for (const release of matchedReleases) {
       for (const asset of release.assets) {
-        if (asset.name === file) {
+        if (re.test(asset.name)) {
           matchedAsset = asset
           matchedRelease = release
           break
