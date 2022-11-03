@@ -47,6 +47,10 @@ The location on local disk where the file was stored (i.e. `/tmp/foo-file.txt`)
 
 The version of the release or tag (i.e. `1.0.1` *without prefix*)
 
+### `browser_download_url`
+
+The URL of the downloaded asset
+
 ## Usage Example
 
 ```yaml
