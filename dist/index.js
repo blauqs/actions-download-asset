@@ -69,7 +69,7 @@ const fs_1 = __nccwpck_require__(5747);
         if (out && fs_1.existsSync(out) && fs_1.statSync(out).isDirectory())
             out = path_1.join(out, file);
         if (!out || !out.length)
-	    out = path_1.join(workspace, file.replace(/[^a-z0-9_-]/gi, '_').toLowerCase());
+	    out = path_1.join(workspace, file.replace(/[^a-z0-9_-]/gi, '').toLowerCase());
         // Ensure we create the directory where the file will be saved
         fs_1.mkdirSync(path_1.dirname(out), { recursive: true, mode: 0o755 });
         // Get an instance of GitHub Octokit

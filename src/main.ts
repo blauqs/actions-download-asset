@@ -42,7 +42,7 @@ import {
     let out = core.getInput('out')
     if (out && !isAbsolute(out)) out = join(workspace, out)
     if (out && existsSync(out) && statSync(out).isDirectory())
-      out = join(out, file.replace(/[^a-z0-9_-]/gi, '_').toLowerCase())
+      out = join(out, file.replace(/[^a-z0-9_-]/gi, '').toLowerCase())
     if (!out || !out.length) out = join(workspace, file)
 
     // Ensure we create the directory where the file will be saved
