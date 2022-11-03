@@ -20,7 +20,7 @@ The tag prefix to use, useful in monorepos with path prefix for tags (defaults t
 
 ### `file`
 
-**Required** The name of the file in the release to download
+**Required** The name of the file in the release to download. If it starts and ends with `/`, it will be treated as regex. (e.g `/[a-zA-Z]+.txt/`)
 
 ### `out`
 
