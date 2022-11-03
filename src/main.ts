@@ -149,6 +149,7 @@ import {
     // Wait for writer to close or error
     writer.on('close', () => {
       // Declare Action Outputs
+      core.setOutput('browser_download_url', matchedAsset.url)
       core.setOutput('out', out)
       core.setOutput('version', matchedVersion)
 
