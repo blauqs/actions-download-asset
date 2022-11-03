@@ -43,7 +43,8 @@ import {
     if (out && !isAbsolute(out)) out = join(workspace, out)
     if (out && existsSync(out) && statSync(out).isDirectory())
       out = join(out, file.replace(/[^a-z0-9_-]/gi, '').toLowerCase())
-    if (!out || !out.length) out = join(workspace, file)
+    if (!out || !out.length)
+      out = join(workspace, file.replace(/[^a-z0-9_-]/gi, '').toLowerCase())
 
     // Ensure we create the directory where the file will be saved
     mkdirSync(dirname(out), {recursive: true, mode: 0o755})
