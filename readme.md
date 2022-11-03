@@ -50,10 +50,10 @@ The version of the release or tag (i.e. `1.0.1` *without prefix*)
 ## Usage Example
 
 ```yaml
-uses: soukvm/action-download-asset@master
+uses: blauqs/action-download-asset@master
 id: download
 with:
-  repo: soukvm/test
+  repo: blauqs/test
   version: latest
   file: some-foo-file.zip
   out: /usr/local/src/
