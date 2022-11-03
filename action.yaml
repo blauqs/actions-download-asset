@@ -47,3 +47,5 @@ outputs:
     description: The location on local disk where the file was stored
   version:
     description: The version of the release or tag
+  browser_download_url:
+    description: The URL of the downloaded asset

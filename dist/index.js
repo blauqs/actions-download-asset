@@ -104,12 +104,21 @@ const fs_1 = __nccwpck_require__(5747);
                 throw new Error(`could not find a release with the prefix/version '${prefix}${version}' in '${repo}'`);
             }
         }
+
+        // Construct regex
+        let re;
+        if (file[0] == '/' && file[file.length - 1] == '/') {
+          re = new RegExp(file.substr(1, file.length - 2));
+        } else {
+          re = new RegExp('^' + file + '$');
+        }
+
         // Filter the assets by file name
         let matchedRelease;
         let matchedAsset;
         for (const release of matchedReleases) {
             for (const asset of release.assets) {
-                if (asset.name === file) {
+                if (re.test(asset.name)) {
                     matchedAsset = asset;
                     matchedRelease = release;
                     break;
