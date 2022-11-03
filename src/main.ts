@@ -73,8 +73,10 @@ import {
     })
 
     // Order the releases by date
-    matchedReleases.sort(
-      (r1, r2) => Date.parse(r1.created_at) - Date.parse(r2.created_at) == 0 ? Date.parse(r1.published_at) - Date.parse(r2.published_at) : Date.parse(r1.created_at) - Date.parse(r2.created_at)
+    matchedReleases.sort((r1, r2) =>
+      Date.parse(r1.created_at) - Date.parse(r2.created_at) === 0
+        ? Date.parse(r1.published_at!) - Date.parse(r2.published_at!)
+        : Date.parse(r1.created_at) - Date.parse(r2.created_at)
     )
 
     // Ensure we found at least one release
@@ -89,15 +91,15 @@ import {
         )
       }
     }
-    
+
     // Construct regex
-    let re;
-    if (file[0] == '/' && file[file.length - 1] == '/') {
-      re = new RegExp(file.substr(1, file.length - 2));
+    let re
+    if (file.startsWith('/') && file.endsWith('/')) {
+      re = new RegExp(file.substr(1, file.length - 2))
     } else {
-      re = new RegExp('^' + file + '$');
+      re = new RegExp('^${file}$')
     }
-    
+
     // Filter the assets by file name
     let matchedRelease: components['schemas']['release'] | undefined
     let matchedAsset: components['schemas']['release-asset'] | undefined
@@ -149,7 +151,7 @@ import {
     // Wait for writer to close or error
     writer.on('close', () => {
       // Declare Action Outputs
-      core.setOutput('browser_download_url', matchedAsset.browser_download_url)
+      core.setOutput('browser_download_url', matchedAsset!.browser_download_url)
       core.setOutput('out', out)
       core.setOutput('version', matchedVersion)
 
