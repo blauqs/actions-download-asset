@@ -74,7 +74,7 @@ import {
 
     // Order the releases by date
     matchedReleases.sort(
-      (r1, r2) => Date.parse(r1.created_at) - Date.parse(r2.created_at)
+      (r1, r2) => Date.parse(r1.created_at) - Date.parse(r2.created_at) == 0 ? Date.parse(r1.published_at) - Date.parse(r2.published_at) : Date.parse(r1.created_at) - Date.parse(r2.created_at)
     )
 
     // Ensure we found at least one release
