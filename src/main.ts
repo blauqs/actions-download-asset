@@ -38,17 +38,6 @@ import {
       )
     }
 
-    // Resolve the out path
-    let out = core.getInput('out')
-    if (out && !isAbsolute(out)) out = join(workspace, out)
-    if (out && existsSync(out) && statSync(out).isDirectory())
-      out = join(out, file.replace(/[^a-z0-9_-]/gi, '').toLowerCase())
-    if (!out || !out.length)
-      out = join(workspace, file.replace(/[^a-z0-9_-]/gi, '').toLowerCase())
-
-    // Ensure we create the directory where the file will be saved
-    mkdirSync(dirname(out), {recursive: true, mode: 0o755})
-
     // Get an instance of GitHub Octokit
     const octokit = github.getOctokit(token || '')
 
@@ -141,6 +130,16 @@ import {
       },
       responseType: 'stream'
     })
+
+    // Resolve the out path
+    let out = core.getInput('out')
+    if (out && !isAbsolute(out)) out = join(workspace, out)
+    if (out && existsSync(out) && statSync(out).isDirectory())
+      out = join(out, matchedAsset.name)
+    if (!out || !out.length) out = join(workspace, matchedAsset.name)
+
+    // Ensure we create the directory where the file will be saved
+    mkdirSync(dirname(out), {recursive: true, mode: 0o755})
 
     // If the file already exists, delete it first
     if (existsSync(out)) unlinkSync(out)
