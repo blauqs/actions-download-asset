@@ -54,7 +54,7 @@ const fs_1 = __nccwpck_require__(5747);
         const version = core.getInput('version') || 'latest';
         const prefix = core.getInput('prefix');
         const mode = core.getInput('mode') || '644';
-        const unpack = `${Boolean(core.getInput('unpack') || false)}`.toLowerCase() === 'true';
+        const unpack = core.getInput('unpack') === 'true';
         // Set the GitHub Access Token... and make sure we were provided one
         const token = core.getInput('token') || process.env.GITHUB_TOKEN;
         if (!token || !token.length) {
