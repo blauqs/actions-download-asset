@@ -48,4 +48,4 @@ outputs:
   version:
     description: The version of the release or tag
   asset:
-    description: JSON array with details about found asset
+    description: JSON with details about found asset
