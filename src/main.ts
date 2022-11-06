@@ -46,12 +46,12 @@ import {
     })
 
     // Check if repo has any releases
-    if (!releases.data.length) {
+    if (!releases['data'].length) {
       throw new Error(`no releases created in repo '${repo}'`)
     }
 
     // Filter the releases based on tag prefix and version
-    const matchedReleases = releases.data.filter(release => {
+    const matchedReleases = releases['data'].filter(release => {
       if (version === 'latest' && release.tag_name.startsWith(prefix)) {
         return true
       } else if (release.tag_name === prefix + version) {
