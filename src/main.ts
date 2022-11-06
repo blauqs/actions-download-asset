@@ -38,9 +38,8 @@ import {
 
     // Get an instance of GitHub Octokit
     const octokit = github.getOctokit(token || '')
-
     // Get repository releases
-    const releases = await octokit.repos.listReleases({
+    const releases = await octokit.rest.repos.listReleases({
       repo: repo.split('/', 2)[1],
       owner: repo.split('/', 2)[0]
     })
