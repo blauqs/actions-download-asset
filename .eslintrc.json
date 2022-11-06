@@ -14,7 +14,6 @@
   },
   "rules": {
     "eslint-comments/no-use": "off",
-    "import/no-named-as-default-member": "warn",
     "import/no-namespace": "off",
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": "error",
