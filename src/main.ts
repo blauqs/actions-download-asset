@@ -187,14 +187,14 @@ import {
     })
   } catch (error) {
     // Display helpful hints if we get back a 401
-    if (error.hasOwnProperty('status') && error.status === 401) {
+    if (axios.isAxiosError(error) && error.status === 401) {
       core.warning(
         'looks like the provided token has no access to the repository'
       )
     }
 
     // Display helpful hints if we get back a 404, otherwise just display the error
-    if (error.hasOwnProperty('status') && error.status === 404) {
+    if (axios.isAxiosError(error) && error.status === 404) {
       if (error.request.url.includes('assets')) {
         core.setFailed(
           `could not find the asset, check the spelling of the file name or the access of the auth token`
