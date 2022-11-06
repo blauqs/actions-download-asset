@@ -38,7 +38,7 @@
     "decompress": "^4.2.1"
   },
   "devDependencies": {
-    "@octokit/openapi-types": "^3.2.0",
+    "@octokit/openapi-types": "^14.0.0",
     "@types/decompress": "^4.2.4",
     "@types/jest": "^26.0.20",
     "@types/node": "^18.11.9",
