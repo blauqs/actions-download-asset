@@ -47,9 +47,9 @@ The location on local disk where the file was stored (i.e. `/tmp/foo-file.txt`)
 
 The version of the release or tag (i.e. `1.0.1` *without prefix*)
 
-### `browser_download_url`
+### `asset`
 
-The URL of the downloaded asset
+JSON with details about the found asset, could be use like the following : `${{ fromJSON(steps.<step-id>.asset).browser_download_url }}`
 
 ## Usage Example
 
